@@ -11,7 +11,7 @@
       "useCreateIndex": true
     },
     "telegram": {
-      "url": "https://api.telegram.org/bot1224863161:AAFd-sJt--BLqTmvbni78ol_SvaNW609ALM/sendMessage"
+      "url": ""
     },
     "testCredentials": {
       "email": "test.user1@test.com",

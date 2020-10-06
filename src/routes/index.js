@@ -14,9 +14,9 @@ router.get('/', (req, res, next) => {
 });
 
 router.post('/new-message', async (req, res, next) => {
-  const telegramURL = config.get('application.telegram.url');
+  const telegramURL = process.env.telegram_url || config.get('application.telegram.url');
   const { message } = req.body;
-
+  console.log('telegramURL: ', telegramURL);
   if (!message || message.text.toLowerCase().indexOf('marco') < 0) {
     return res.end();
   }
