@@ -111,3 +111,4 @@ build
 db-data
 src/app-logs/*.json
 src/app-logs/*.log
+src/app-logs/*.gz

@@ -13,6 +13,10 @@
     "telegram": {
       "url": ""
     },
+    "hapiFhir": {
+      "baseURL": "http://hapi.fhir.org/baseDstu3",
+      "patientId": 2256976
+    },
     "testCredentials": {
       "email": "test.user1@test.com",
       "password": "testPW1",

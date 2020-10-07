@@ -1,0 +1,67 @@
+{
+  "resourceType": "Observation",
+  "meta": {
+    "lastUpdated": "",
+    "tag": []
+  },
+  "status": "final",
+  "category": [
+    {
+      "coding": [
+        {
+          "system": "http://terminology.hl7.org/CodeSystem/observation-category",
+          "code": "vital-signs",
+          "display": "vital-signs"
+        }
+      ]
+    }
+  ],
+  "code": {
+    "coding": [
+      {
+        "system": "http://loinc.org",
+        "code": "2339-0",
+        "display": "Glucose [Mass/volume] in Capillary blood by Glucometer"
+      }
+    ],
+    "text": "Glucose [Mass/volume] in Capillary blood by Glucometer"
+  },
+  "subject": {
+    "reference": ""
+  },
+  "effectiveDateTime": "",
+  "issued": "",
+  "valueQuantity" : {
+    "value" : "",
+    "unit" : "mg/dL",
+    "system" : "http://unitsofmeasure.org"
+  },
+  "referenceRange" : [
+    {
+      "low" : {
+        "value" : 40.0,
+        "unit" : "mg/dL",
+        "system" : "http://unitsofmeasure.org",
+        "code" : "mg/dL"
+      },
+      "high" : {
+        "value" : 150.0,
+        "unit" : "mg/dL",
+        "system" : "http://unitsofmeasure.org",
+        "code" : "mg/dL"
+      },
+      "appliesTo" : [
+        {
+          "coding" : [
+            {
+              "system" : "http://hl7.org/fhir/referencerange-meaning",
+              "code" : "normal",
+              "display" : "Normal Range"
+            }
+          ],
+          "text" : "Normal Range"
+        }
+      ]
+    }
+  ]
+}
