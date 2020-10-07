@@ -1,13 +1,17 @@
 import express from 'express';
 import config from 'config';
 import axios from 'axios';
+import get from 'lodash/get';
+import moment from 'moment-timezone';
 
 import winstonLogger from '../lib/logger/winston';
-import { postObservation } from '../lib/fhir/hapiFhir';
-import { hasNoResponse } from '../lib/utils';
+import { postObservation, getPatient } from '../lib/fhir/hapiFhir';
+import { hasNoResponse, scheduleCheckIn } from '../lib/utils';
 
 const NUMERIC_REGEXP = /[-]{0,1}[\d]*[.]{0,1}[\d]+/g;
+const PATIENT_ID = config.get('application.hapiFhir.patientId');
 const router = express.Router();
+const app = express();
 
 /* GET home page. */
 router.get('/', (req, res, next) => {
@@ -23,16 +27,23 @@ router.post('/new-message', async (req, res, next) => {
   if (!message) {
     return res.end();
   }
+  const currentTime = moment()
+    .tz(config.get('application.hapiFhir.patientTimezone'))
+    .format('hh:mm z');
   const messageText = message.text.toLowerCase();
+  const patientResponse = await getPatient(PATIENT_ID);
+  const patientGivenName = get(patientResponse, 'name[0].given[0]', '');
+  const patientFamilyName = get(patientResponse, 'name[0].family', '');
+  const patientName = `${patientGivenName} ${patientFamilyName}`;
   let telegramResponse;
   switch (messageText) {
-    case 'hi'
-    case 'hello':
+    case 'hi dab':
+    case 'hello dab':
       telegramResponse = axios.post(telegramURL, {
         chat_id: message.chat.id,
         text:
           // eslint-disable-next-line max-len
-          'Hello, there yourself!! Have you checked your glucose levels yet? If so, please enter the glucose level.',
+          `🤖: Hello ${patientName}, there yourself!! It's ${currentTime}, have you checked your blood glucose levels yet? If so, please enter the glucose level. If you need more time to do so, please say "No, I haven't yet".`,
       });
       break;
 
@@ -40,32 +51,41 @@ router.post('/new-message', async (req, res, next) => {
       // eslint-disable-next-line no-case-declarations
       const glucoseValue = message.text.match(NUMERIC_REGEXP);
       if (glucoseValue) {
-        const patientId = config.get('application.hapiFhir.patientId');
         const fhirURL = config.get('application.hapiFhir.baseURL');
-        const glucoseObservation = await postObservation(patientId, glucoseValue[0]);
-        let text = 'Thank you for your glucose reading,';
+        const glucoseObservation = await postObservation(PATIENT_ID, glucoseValue[0]);
+        let text = `🤖: Thank you ${patientName}, for your glucose reading,`;
         if (
           typeof glucoseObservation.resourceType !== 'undefined' &&
           glucoseObservation.resourceType === 'Observation'
         ) {
-          text += ` this observation has been recorded: at ${fhirURL}/Observation/${glucoseObservation.id}. `;
+          text += ` this observation has been recorded at: ${fhirURL}/Observation/${glucoseObservation.id}. `;
         }
         text += 'I hope you are feeling well and having a great day!';
         telegramResponse = axios.post(telegramURL, {
           chat_id: message.chat.id,
           text,
         });
+        if (app.locals.setAScheduledCheckIn) {
+          clearInterval(app.locals.setAScheduledCheckIn);
+        }
       } else if (hasNoResponse(messageText)) {
         telegramResponse = axios.post(telegramURL, {
           chat_id: message.chat.id,
           text:
             // eslint-disable-next-line max-len
-            'Okay, please remember to check your glucose levels! I will check back later, to collect your glucose level.',
+            `🤖: Okay ${patientName}, I'll check back in ${config.get(
+              'application.hapiFhir.checkBackInTime',
+            )} ${config.get(
+              'application.hapiFhir.checkBackDuration',
+            )}, but please remember to check your blood glucose levels! I will check back later, to collect your blood glucose level. It is important, to check your glucose everyday and is an important part of your diabetes management. `,
         });
+        app.locals.setAScheduledCheckIn = setInterval(() => {
+          scheduleCheckIn(telegramURL, message, patientName, res, next);
+        }, config.get('application.hapiFhir.checkBackInterval'));
       } else {
         telegramResponse = axios.post(telegramURL, {
           chat_id: message.chat.id,
-          text: 'I hope you are feeling well and having a great day!',
+          text: `🤖: ${patientName}, I hope you are feeling well and having a great day! If you would like to have your blood glucose reading taken, just say "Hi DAB or Hello DAB"`,
         });
       }
   }

@@ -11,7 +11,9 @@ import helmet from 'helmet';
 // Libs
 import mongooseConnection from './lib/connection/mongooseConnectionHandler';
 import winstonLogger from './lib/logger/winston';
+
 // Routes
+// eslint-disable-next-line import/no-named-as-default-member
 import index from './routes/index';
 
 const db = config.get('application.db');

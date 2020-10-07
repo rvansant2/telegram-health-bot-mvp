@@ -15,7 +15,11 @@
     },
     "hapiFhir": {
       "baseURL": "http://hapi.fhir.org/baseDstu3",
-      "patientId": 2256976
+      "patientId": 2755394,
+      "patientTimezone": "America/New_York",
+      "checkBackInTime": 15,
+      "checkBackDuration": "minutes",
+      "checkBackInterval": 900000
     },
     "testCredentials": {
       "email": "test.user1@test.com",
