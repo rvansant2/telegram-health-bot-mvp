@@ -1,6 +1,7 @@
 import express from 'express';
 import { hash as bcryptHash, compare as bcryptCompare } from 'bcrypt';
 import omit from 'lodash/omit';
+import config from 'config';
 
 import winstonLogger from '../lib/logger/winston';
 import { authenticateToken, generateAuthToken } from '../middleware/authenticate/jwtAuthenticate';
@@ -12,7 +13,7 @@ router
   .get('/:id?', authenticateToken, async (req, res, next) => {
     try {
       if (req.decoded.isAuthorized && !req.params.id) {
-        const users = await userModel.find({ status: 'active' }).select('-password');
+        const users = await userModel.findAll({ status: 'active' });
 
         res.status(200).json({
           users,
@@ -22,7 +23,10 @@ router
           message: 'Successfully retrieved list of users.',
         });
       } else if (req.decoded.isAuthorized && req.params.id) {
-        const userDetails = await userModel.findOne({ _id: req.params.id }).select('-password');
+        const userDetails = await userModel
+          .findOne({ _id: req.params.id })
+          .populate('glucose')
+          .select('-password');
 
         res.status(200).json({
           userDetails,
@@ -63,6 +67,7 @@ router
           username,
           password: await bcryptHash(password, 10),
           status: 'active',
+          patientId: config.get('application.hapiFhir.patientId'),
         },
       );
       const token = await generateAuthToken({
@@ -72,6 +77,7 @@ router
         email: user.email,
         username: user.username,
         status: user.status,
+        patientId: user.patientId,
       });
       const savedUser = omit(user.toObject(), ['password']);
       res.status(200).json({
@@ -90,7 +96,10 @@ router
     try {
       const { password } = req.body;
       const query = req.body.username ? { username: req.body.username } : { email: req.body.email };
-      const user = await userModel.findOne(query);
+      const user = await userModel
+        .findOne(query)
+        .populate('glucose')
+        .select('-password');
       if (user) {
         const validUser = await bcryptCompare(password, user.password);
         if (!validUser) {

@@ -15,6 +15,7 @@ import winstonLogger from './lib/logger/winston';
 // Routes
 // eslint-disable-next-line import/no-named-as-default-member
 import index from './routes/index';
+import users from './routes/users';
 
 const db = config.get('application.db');
 
@@ -47,6 +48,7 @@ app.use(helmet());
 
 // Apply Defined routes
 app.use('/', index);
+app.use('/users', users);
 
 // catch 404 and forward to error handler
 app.use((req, res, next) => {

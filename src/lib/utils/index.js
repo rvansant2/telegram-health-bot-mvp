@@ -11,8 +11,8 @@ export const hasNoResponse = textResponse => {
   return isArray(hasNoInResponse) ? hasNoInResponse.length > 0 : false;
 };
 
-export const scheduleCheckIn = (callURL, message, patientName, res, next) =>
-  axios
+export const scheduleCheckIn = (callURL, message, patientName, res, next) => {
+  return axios
     .post(callURL, {
       chat_id: message.chat.id,
       text:
@@ -32,5 +32,9 @@ export const scheduleCheckIn = (callURL, message, patientName, res, next) =>
       winstonLogger.error('Error :', err);
       res.end(`Error :${err}`);
     });
+};
+
+export const cleanseString = (stringToClean, cleansingRegex) =>
+  stringToClean.replace(cleansingRegex, '');
 
 export default { hasNoResponse, scheduleCheckIn };

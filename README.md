@@ -1,14 +1,6 @@
-# node-app-api
-A node application RESTful API
+# telegram-health-bot
+- Diabetes Health Bot
 
 ## Description
-This RRESTful API is meant to provide a simple baseline framework to get started with standard functionality needed like:
-
-- Authentication
-- Middleware for authenticated routes
-- User registration and login
-
-## TODO
-- Data Access Object (DAO) interface library
-- Utils library
-- Error Handler
+Telegram Health Check-in Bot
+- Minimal Viable Product (MVP) for a Diabetes Health Bot

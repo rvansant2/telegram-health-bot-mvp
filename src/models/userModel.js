@@ -1,4 +1,5 @@
 import mongoose from 'mongoose';
+import glucose from './bloodGlucoseModel';
 
 mongoose.set('debug', true);
 
@@ -20,6 +21,9 @@ const userModelSchema = {
   password: { type: String, required: true },
   status: { type: String, enum: ['active', 'disabled'], default: 'active' },
   role: [{ type: Schema.Types.ObjectId, ref: 'role' }],
+  patientId: { type: String, required: true },
+  glucose: [{ type: Schema.Types.ObjectId, ref: 'glucose' }],
+  food: [{ type: Schema.Types.ObjectId, ref: 'food' }],
   createdAt: Date,
   updatedAt: Date,
 };
@@ -45,7 +49,7 @@ userSchema.statics.findOneOrCreate = async function findOneOrCreate(query, data)
       { $setOnInsert: data },
       { upsert: true, new: true },
     )
-      .populate('role')
+      .populate('glucose')
       .exec();
 
     if (user) {
@@ -53,6 +57,19 @@ userSchema.statics.findOneOrCreate = async function findOneOrCreate(query, data)
     }
   } catch (e) {
     return new Error(`User Schema findOneOrCreate error: ${e.message}.`);
+  }
+};
+
+userSchema.statics.findAll = async function findAll(query) {
+  try {
+    const users = await this.find(query)
+      .populate('glucose')
+      .select('-password')
+      .exec();
+
+    return users;
+  } catch (e) {
+    return new Error(`User Schema findAll error: ${e.message}.`);
   }
 };
 

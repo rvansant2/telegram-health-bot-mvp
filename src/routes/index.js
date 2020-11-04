@@ -6,9 +6,12 @@ import moment from 'moment-timezone';
 
 import winstonLogger from '../lib/logger/winston';
 import { postObservation, getPatient } from '../lib/fhir/hapiFhir';
-import { hasNoResponse, scheduleCheckIn } from '../lib/utils';
+import { hasNoResponse, scheduleCheckIn, cleanseString } from '../lib/utils';
+import { REGEX_PATTERNS } from '../lib/utils/regexes';
 
-const NUMERIC_REGEXP = /[-]{0,1}[\d]*[.]{0,1}[\d]+/g;
+import userModel from '../models/userModel';
+import bloodGlucoseModel from '../models/bloodGlucoseModel';
+
 const PATIENT_ID = config.get('application.hapiFhir.patientId');
 const router = express.Router();
 const app = express();
@@ -30,7 +33,7 @@ router.post('/new-message', async (req, res, next) => {
   const currentTime = moment()
     .tz(config.get('application.hapiFhir.patientTimezone'))
     .format('hh:mm z');
-  const messageText = message.text.toLowerCase();
+  const messageText = cleanseString(message.text.toLowerCase(), REGEX_PATTERNS.NO_SPECIAL_CHARS);
   const patientResponse = await getPatient(PATIENT_ID);
   const patientGivenName = get(patientResponse, 'name[0].given[0]', '');
   const patientFamilyName = get(patientResponse, 'name[0].family', '');
@@ -49,10 +52,20 @@ router.post('/new-message', async (req, res, next) => {
 
     default:
       // eslint-disable-next-line no-case-declarations
-      const glucoseValue = message.text.match(NUMERIC_REGEXP);
+      const glucoseValue = message.text.match(REGEX_PATTERNS.NUMERIC_REGEXP);
       if (glucoseValue) {
         const fhirURL = config.get('application.hapiFhir.baseURL');
         const glucoseObservation = await postObservation(PATIENT_ID, glucoseValue[0]);
+        const user = await userModel.findOne({ patientId: PATIENT_ID });
+        if (user.id) {
+          const glucose = await bloodGlucoseModel.insertMany({
+            glucose: glucoseValue[0],
+            userId: user.id,
+          });
+          // eslint-disable-next-line no-underscore-dangle
+          user.glucose.push(glucose[0]._id);
+          user.save();
+        }
         let text = `🤖: Thank you ${patientName}, for your glucose reading,`;
         if (
           typeof glucoseObservation.resourceType !== 'undefined' &&
