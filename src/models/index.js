@@ -2,6 +2,6 @@ import userModel from './userModel';
 import roleModel from './roleModel';
 import bloodGlucoseModel from './bloodGlucoseModel';
 import foodLogModel from './foodLogModel';
-import chatSettingsModel from './chatSettings';
+import chatSettingModel from './chatSettingModel';
 
-export { userModel, roleModel, bloodGlucoseModel, foodLogModel, chatSettingsModel };
+export { userModel, roleModel, bloodGlucoseModel, foodLogModel, chatSettingModel };

@@ -26,6 +26,7 @@ router
         const userDetails = await userModel
           .findOne({ _id: req.params.id })
           .populate('glucose')
+          .populate('chatsetting')
           .select('-password');
 
         res.status(200).json({
@@ -96,10 +97,7 @@ router
     try {
       const { password } = req.body;
       const query = req.body.username ? { username: req.body.username } : { email: req.body.email };
-      const user = await userModel
-        .findOne(query)
-        .populate('glucose')
-        .select('-password');
+      const user = await userModel.findOne(query).populate('glucose');
       if (user) {
         const validUser = await bcryptCompare(password, user.password);
         if (!validUser) {
@@ -112,6 +110,7 @@ router
           email: user.email,
           username: user.username,
           status: user.status,
+          patientId: user.patientId,
         });
         const loggedInUser = omit(user.toObject(), ['password']);
         res.status(200).json({

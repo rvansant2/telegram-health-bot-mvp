@@ -1,5 +1,4 @@
 import mongoose from 'mongoose';
-import glucose from './bloodGlucoseModel';
 
 mongoose.set('debug', true);
 
@@ -24,6 +23,7 @@ const userModelSchema = {
   patientId: { type: String, required: true },
   glucose: [{ type: Schema.Types.ObjectId, ref: 'glucose' }],
   food: [{ type: Schema.Types.ObjectId, ref: 'food' }],
+  chatsetting: [{ type: Schema.Types.ObjectId, ref: 'chatsetting' }],
   createdAt: Date,
   updatedAt: Date,
 };
@@ -50,6 +50,7 @@ userSchema.statics.findOneOrCreate = async function findOneOrCreate(query, data)
       { upsert: true, new: true },
     )
       .populate('glucose')
+      .populate('chatsetting')
       .exec();
 
     if (user) {
@@ -64,6 +65,7 @@ userSchema.statics.findAll = async function findAll(query) {
   try {
     const users = await this.find(query)
       .populate('glucose')
+      .populate('chatsetting')
       .select('-password')
       .exec();
 

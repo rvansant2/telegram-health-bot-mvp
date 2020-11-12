@@ -13,7 +13,7 @@ const schemaOptions = {
 
 const chatSettingsModelSchema = {
   _id: { type: Schema.Types.ObjectId, auto: true },
-  chatId: { type: String, required: true },
+  chatObject: { type: String, required: true },
   userId: { type: Schema.Types.ObjectId, ref: 'user' },
   createdAt: Date,
   updatedAt: Date,
@@ -49,6 +49,6 @@ chatSettingsSchema.statics.findOneOrCreate = async function findOneOrCreate(quer
   }
 };
 
-const chatSettingsModel = mongoose.model('chatsetting', chatSettingsSchema);
+const chatSettingModel = mongoose.model('chatsetting', chatSettingsSchema);
 
-export default chatSettingsModel;
+export default chatSettingModel;

@@ -74,8 +74,17 @@ app.use((err, req, res, next) => {
   next();
 });
 
+const dbOptions = {
+  authSource: db.authSource,
+  user: db.user || process.env.mongoUser,
+  pass: db.password || process.env.mongoPassword,
+  poolSize: db.poolSize,
+  ssl: db.ssl || true,
+  useNewUrlParser: true,
+};
+
 // MongoDB connection
-mongooseConnection(db.uri);
+mongooseConnection(db.uri, dbOptions);
 
 app.listen(port, () =>
   // eslint-disable-next-line no-console

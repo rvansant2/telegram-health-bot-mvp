@@ -11,6 +11,7 @@ import { REGEX_PATTERNS } from '../lib/utils/regexes';
 
 import userModel from '../models/userModel';
 import bloodGlucoseModel from '../models/bloodGlucoseModel';
+import chatSettingModel from '../models/chatSettingModel';
 
 const PATIENT_ID = config.get('application.hapiFhir.patientId');
 const router = express.Router();
@@ -53,10 +54,11 @@ router.post('/new-message', async (req, res, next) => {
     default:
       // eslint-disable-next-line no-case-declarations
       const glucoseValue = message.text.match(REGEX_PATTERNS.NUMERIC_REGEXP);
+      // eslint-disable-next-line no-case-declarations
+      const user = await userModel.findOne({ patientId: PATIENT_ID });
       if (glucoseValue) {
         const fhirURL = config.get('application.hapiFhir.baseURL');
         const glucoseObservation = await postObservation(PATIENT_ID, glucoseValue[0]);
-        const user = await userModel.findOne({ patientId: PATIENT_ID });
         if (user.id) {
           const glucose = await bloodGlucoseModel.insertMany({
             glucose: glucoseValue[0],
@@ -96,6 +98,15 @@ router.post('/new-message', async (req, res, next) => {
           scheduleCheckIn(telegramURL, message, patientName, res, next);
         }, config.get('application.hapiFhir.checkBackInterval'));
       } else {
+        if (user.chatsetting.length === 0) {
+          const chatSetting = await chatSettingModel.insertMany({
+            chatObject: JSON.stringify(message),
+            userId: user.id,
+          });
+          // eslint-disable-next-line no-underscore-dangle
+          user.chatsetting.push(chatSetting[0]._id);
+          user.save();
+        }
         telegramResponse = axios.post(telegramURL, {
           chat_id: message.chat.id,
           text: `🤖: ${patientName}, I hope you are feeling well and having a great day! If you would like to have your blood glucose reading taken, just say "Hi DAB or Hello DAB"`,
