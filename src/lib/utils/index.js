@@ -33,7 +33,20 @@ export const scheduleCheckIn = (callURL, message, patientName, res, next) =>
       res.end(`Error :${err}`);
     });
 
+export const scheduleDailyCheckIn = (callURL, message, text) =>
+  axios
+    .post(callURL, {
+      chat_id: message.chat.id,
+      text,
+    })
+    .then(response => {
+      winstonLogger.log(`Message posted: ${response}`);
+    })
+    .catch(err => {
+      winstonLogger.error('Error :', err);
+    });
+
 export const cleanseString = (stringToClean, cleansingRegex) =>
   stringToClean.replace(cleansingRegex, '');
 
-export default { hasNoResponse, scheduleCheckIn };
+export default { hasNoResponse, scheduleCheckIn, scheduleDailyCheckIn };

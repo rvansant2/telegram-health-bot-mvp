@@ -14,7 +14,7 @@ RUN npm run build
 FROM node:lts
 
 RUN mkdir -p /api
-COPY --from=builder /transpile/build /api/build
+COPY --from=builder /transpile/build /api
 WORKDIR /api
 
 COPY ./package*.json ./

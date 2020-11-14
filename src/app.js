@@ -7,6 +7,7 @@ import bodyParser from 'body-parser';
 import config from 'config';
 import cors from 'cors';
 import helmet from 'helmet';
+import breeScheduler from './lib/utils/breeScheduler';
 
 // Libs
 import mongooseConnection from './lib/connection/mongooseConnectionHandler';
@@ -16,6 +17,7 @@ import winstonLogger from './lib/logger/winston';
 // eslint-disable-next-line import/no-named-as-default-member
 import index from './routes/index';
 import users from './routes/users';
+import patients from './routes/patients';
 
 const db = config.get('application.db');
 
@@ -49,6 +51,7 @@ app.use(helmet());
 // Apply Defined routes
 app.use('/', index);
 app.use('/users', users);
+app.use('/patients', patients);
 
 // catch 404 and forward to error handler
 app.use((req, res, next) => {
@@ -85,6 +88,8 @@ const dbOptions = {
 
 // MongoDB connection
 mongooseConnection(db.uri, dbOptions);
+
+breeScheduler();
 
 app.listen(port, () =>
   // eslint-disable-next-line no-console

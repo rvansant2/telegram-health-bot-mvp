@@ -12,7 +12,7 @@
   "author": "rvansant2",
   "license": "MIT",
   "scripts": {
-    "start": "nodemon build/app.js",
+    "start": "nodemon app.js",
     "dev": "nodemon build/app.js",
     "build": "babel src -d build --copy-files",
     "watch": "babel src -d build --copy-files --watch",
@@ -36,6 +36,7 @@
   },
   "dependencies": {
     "@babel/runtime": "^7.7.7",
+    "@ladjs/graceful": "^1.0.5",
     "app-root-path": "^3.0.0",
     "axios": "^0.20.0",
     "babel-polyfill": "^6.26.0",
@@ -60,6 +61,7 @@
     "nodemon": "^1.19.4",
     "package.json": "^2.0.1",
     "serve-favicon": "^2.4.5",
+    "signale": "^1.4.0",
     "stable": "^0.1.6",
     "winston": "^3.2.1",
     "winston-daily-rotate-file": "^4.4.2"

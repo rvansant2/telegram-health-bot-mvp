@@ -44,6 +44,7 @@ services:
       - ./config:/api/config
       - ./.babelrc:/api/.babelrc
       - ./src/app-logs:/api/app-logs:consistent
+      - ./src/jobs:/api/jobs:delegated
     logging:
       options:
         max-size: 10m

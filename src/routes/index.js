@@ -55,8 +55,10 @@ router.post('/new-message', async (req, res, next) => {
       // eslint-disable-next-line no-case-declarations
       const glucoseValue = message.text.match(REGEX_PATTERNS.NUMERIC_REGEXP);
       // eslint-disable-next-line no-case-declarations
+      const hasGlucoseValue = message.text.match(REGEX_PATTERNS.GLUCOSE_SUBMISSION);
+      // eslint-disable-next-line no-case-declarations
       const user = await userModel.findOne({ patientId: PATIENT_ID });
-      if (glucoseValue) {
+      if (glucoseValue || hasGlucoseValue) {
         const fhirURL = config.get('application.hapiFhir.baseURL');
         const glucoseObservation = await postObservation(PATIENT_ID, glucoseValue[0]);
         if (user.id) {
